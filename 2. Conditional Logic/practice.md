@@ -24,14 +24,15 @@
 * TaskManagerクラス: タスクの追加、状態変更、削除、一覧表示を管理。
 実装例
 ```ruby
-# タスクの作成
-task1 = Task.new("Write Report", TeamMember.new("Taira"), "高")
-task2 = Task.new("Fix Bug", TeamMember.new("Alex"), "中")
-task3 = Task.new("Prepare Presentation", TeamMember.new("Taira"), "低")
 
 # チームメンバーの作成
 member1 = TeamMember.new("Taira")
 member2 = TeamMember.new("Alex")
+
+# タスクの作成
+task1 = Task.new("Write Report")
+task2 = Task.new("Fix Bug")
+task3 = Task.new("Prepare Presentation")
 
 # タスクの管理
 manager = TaskManager.new
