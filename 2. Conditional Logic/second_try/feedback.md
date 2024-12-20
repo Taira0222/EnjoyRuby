@@ -6,3 +6,11 @@
 
 ## 解決方法
 * TeamMemberに@assign_memberというインスタンス変数を持たせて、TeamMember#add_taskの際に紐づけさせた。
+
+# 問題2: オンラインショッピングの在庫管理システム
+
+## できなかったこと
+* restock_productの2つめの変数が空の場合の対処の仕方
+
+## 解決方法
+* restock_product(product,count = nil)とデフォルト値を入れれば解決

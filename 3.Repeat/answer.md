@@ -1,71 +1,80 @@
-# 問1 回答
+# 問1 解答例
 ```ruby
-# パターンを生成するメソッド
-def generate_pattern(n)
-  # 1からnまで繰り返し処理を行う
-  (1..n).each do |i|
-    # 1からiまでの数を配列として作成し、スペースで結合して表示
-    puts (1..i).to_a.join(" ")
+def process_numbers(nums)
+  # 第1段階: 10以上のみ
+  nums = nums.select { |x| x >= 10 }
+
+  # 第2段階: 全てに+5し、50以上のみ残す
+  nums = nums.map { |x| x + 5 }.select { |x| x >= 50 }
+
+  # 第3段階: 平均値以上のみ残す
+  unless nums.empty?
+    avg = (nums.sum / nums.size) # 小数点切り捨てを自然に行う整数除算
+    nums = nums.select { |x| x >= avg }
   end
+
+  # 昇順にソートして出力
+  nums.sort.each { |x| puts x }
 end
 
 # 実行例
-generate_pattern(5)
+process_numbers([3, 12, 49, 10, 55, 7, 100])  
+# 第1段階後: [12, 49, 10, 55, 100] (10以上)
+# 第2段階後: [17, 54, 15, 60, 105] → 50以上: [54, 60, 105]
+# 第3段階後: 平均は(54+60+105)=219/3=73, 73以上は[105]
+# 出力: 105
 ```
 
-## 解説
-1. generate_patternメソッド:
-
-    引数 n を受け取り、1から n までの数字を使ってパターンを生成します。
-2. (1..n).each:
-
-    1から n までの数値を順に取り出し、ブロック内の処理を実行します。
-3. (1..i).to_a:
-    
-    1から i までの数を配列として作成します。
-4. .join(" "):
-
-    配列の要素をスペースで結合して文字列にします。
-5. puts:
-
-    生成した文字列を表示します。
-
-
-# 問2 回答
+# 問2 
 ```ruby
-# フィボナッチ数列を生成するメソッド
-def generate_fibonacci(n)
-  # 最初の2つのフィボナッチ数
-  fib = [0, 1]
+def all_fix?(arr)
+  arr.all? { |x| x == "fix" }
+end
 
-  # 2からn-1まで繰り返し、フィボナッチ数列を生成
-  (2...n).each do
-    # 次のフィボナッチ数を計算し、配列に追加
-    fib << fib[-1] + fib[-2]
+def process_element(elem)
+  if elem.is_a?(Integer)
+    if elem < 10
+      elem + 10
+    elsif elem < 50
+      (elem.to_s + "ok")
+    else
+      "fix"
+    end
+  else
+    # elemは文字列の場合
+    if elem == "fix"
+      "fix"
+    elsif elem.end_with?("ok")
+      # "15ok"→"15"
+      num_str = elem.sub(/ok$/, '')
+      num = num_str.to_i
+      num + 5
+    else
+      # 文字列だが"ok"で終わらず、"fix"でもない
+      if elem.length >= 10
+        # 最後の3文字除去
+        elem[0...(elem.size-3)]
+      else
+        # 短いなら末尾に"?"
+        elem + "?"
+      end
+    end
   end
+end
 
-  # フィボナッチ数列を1つずつ表示
-  fib.first(n).each { |num| puts num }
+def process_until_fix(arr)
+  until all_fix?(arr)
+    arr.map! { |e| process_element(e) }
+  end
+  arr
 end
 
 # 実行例
-generate_fibonacci(10)
+data = [3, 12, 49, "hello", 55, "99ok"]
+# 処理の流れを簡略: 
+#  - 3は10未満→3+10=13 →文字列化"13ok"に次のループで
+#  - "hello"は5文字未満→"hello?"追加...など状態が複雑に変化
+result = process_until_fix(data)
+p result
+# 最終的には全て"fix"になって終了
 ```
-
-## 解説
-1. generate_fibonacciメソッド:
-
-    引数 n を受け取り、最初の n 個のフィボナッチ数を生成します。
-2. 初期値 fib = [0, 1]:
-
-    フィボナッチ数列の最初の2つの数（0と1）を初期値として設定します。
-3. (2...n).each:
-
-    2から n-1 までの範囲で繰り返し処理を行います。
-    各ループで、新しいフィボナッチ数を計算して fib 配列に追加します。
-4. fib << fib[-1] + fib[-2]:
-
-    配列の最後の2つの要素を足し合わせて、新しいフィボナッチ数として配列に追加します。
-5. fib.first(n).each { |num| puts num }:
-
-    fib 配列の最初の n 個の要素を取り出し、それぞれを表示します。
