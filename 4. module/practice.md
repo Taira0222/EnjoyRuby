@@ -26,9 +26,9 @@
 # パイプラインにモジュールをミックスインする
 pipeline = DataPipeline.new([3,12,49,10,55,7,100])
 # 順番にincludeすることで処理順を決定
-pipeline.extend(FilterModule)
-pipeline.extend(TransformModule)
 pipeline.extend(AggregateModule)
+pipeline.extend(TransformModule)
+pipeline.extend(FilterModule)
 
 p pipeline.process
 # => [50]
