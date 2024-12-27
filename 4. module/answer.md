@@ -48,45 +48,100 @@ p pipeline.process
 
 # 問2
 ```ruby
-module TimestampPlugin
-  def log(message, level=:info)
-    message = "#{Time.now.strftime("%Y-%m-%d %H:%M:%S")} #{message}"
-    super(message, level)
-  end
-end
-
-module LevelPlugin
-  # WARN以上のみ通す
-  LEVEL_ORDER = {debug:0, info:1, warn:2, error:3}
-  def log(message, level=:info)
-    if LEVEL_ORDER[level] >= LEVEL_ORDER[:warn]
-      super(message, level)
-    else
-      # debugやinfoは出力しない
-    end
-  end
-end
-
-module UppercasePlugin
-  def log(message, level=:info)
-    message = message.upcase
-    super(message, level)
-  end
-end
-
+# ----------------------------------
+# LoggerBase
+# ----------------------------------
 class LoggerBase
-  def log(message, level=:info)
+  def log(message, level = :info)
+    # 最終的に出力する処理
     puts message
   end
 end
 
-# プラグインを好みの順序でprependする
+# ----------------------------------
+# LevelPlugin
+# ----------------------------------
+module LevelPlugin
+  # 今回は例として固定値で threshold = :warn とする
+  THRESHOLD = :warn
+  LEVEL_ORDER = { debug: 1, info: 2, warn: 3, error: 4, fatal: 5 }
+
+  def log(message, level = :info)
+    # フィルタリング条件: threshold未満なら出力しない
+    return if LEVEL_ORDER[level] < LEVEL_ORDER[THRESHOLD]
+
+    # フィルタを通過したら次に処理を渡す
+    super
+  end
+end
+
+# ----------------------------------
+# TimestampPlugin
+# ----------------------------------
+module TimestampPlugin
+  def log(message, level = :info)
+    # 現在時刻を付与してから次に処理を渡す
+    timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
+    super("#{timestamp} #{message}", level)
+  end
+end
+
+# ----------------------------------
+# UppercasePlugin
+# ----------------------------------
+module UppercasePlugin
+  def log(message, level = :info)
+    # 大文字化してから次に処理を渡す
+    super(message.upcase, level)
+  end
+end
+
+# ----------------------------------
+# 利用例
+# ----------------------------------
 logger = LoggerBase.new
+
+# prependする順序を変えると処理順も変化する
 logger.singleton_class.prepend(TimestampPlugin)
 logger.singleton_class.prepend(UppercasePlugin)
 logger.singleton_class.prepend(LevelPlugin)
 
-logger.log("this is info", :info)   # infoは出力されない（levelpluginでフィルタ）
+# このレベルは :warn 未満なので出力されない
+logger.log("this is info", :info)
+
+# こちらは threshold(:warn) 以上なのでフィルタを通過し、すべてのプラグインを通る
 logger.log("warning occurred!", :warn)
-# => "2023-08-20 12:00:00 WARNING OCCURRED!"
+logger.log("serious error!", :error)
+
+```
+
+## 処理の流れ
+1. logger.log("this is info", :info)
+
+  * LevelPlugin が受け取る
+    * レベルが :info (数値 2) < :warn (数値 3) なのでフィルタされ、super を呼ばずに終了 → 出力なし。
+2. logger.log("warning occurred!", :warn)
+
+  * LevelPlugin
+    * レベル :warn (3) >= :warn (3) なのでフィルタを通過
+    super("warning occurred!", :warn) を呼ぶ
+  * UppercasePlugin
+    * メッセージを大文字化 → "WARNING OCCURRED!"
+    * super("WARNING OCCURRED!", :warn) を呼ぶ
+  * TimestampPlugin
+    * "YYYY-MM-DD HH:MM:SS WARNING OCCURRED!" という文字列に加工
+    * super("YYYY-MM-DD HH:MM:SS WARNING OCCURRED!", :warn) を呼ぶ
+  * LoggerBase
+    * 最終的に標準出力へ出力する
+3. logger.log("serious error!", :error)
+
+    * :error (4) >= :warn (3) → フィルタ通過
+    * UppercasePlugin → "SERIOUS ERROR!"
+    * TimestampPlugin → "YYYY-MM-DD HH:MM:SS SERIOUS ERROR!"
+    * LoggerBase → 出力
+
+## 出力結果
+```ruby
+2024-12-26 12:00:00 WARNING OCCURRED!
+2024-12-26 12:00:00 SERIOUS ERROR!
 ```

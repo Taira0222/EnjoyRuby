@@ -36,35 +36,56 @@ p pipeline.process
 
 # 問題2（難易度：レベル8）
 ## 概要
-プラグインアーキテクチャを持つログ処理システムを作成します。
-LoggerBaseクラスはログメッセージを受け取り、登録されたモジュール（プラグイン）を通して、ログを整形・フィルタ・出力します。
+Ruby で、プラグインアーキテクチャを持つログ処理システムを作成してください。
+中心となる LoggerBase クラスがあり、そのクラスの log メソッドを呼び出すと、あらかじめ登録（prepend）された複数のモジュール（プラグイン）がフックしてログメッセージを変換・フィルタリングなどを施し、最後に LoggerBase 本体が最終的なログ出力を行います。
 
 ## 要件
 1. LoggerBaseクラス：
-    * logメソッドで文字列メッセージを受け取る。
-    * 登録されたプラグインモジュールがlogをフックし、メッセージを変換、フィルタリングまたは別処理を行う。
-    * 全てのプラグインを通過後、最終的なメッセージを出力。
-2. プラグインモジュール例：
-    * TimestampPlugin：logメソッドをフックして、メッセージの先頭に現在時刻を付ける。
-    * LevelPlugin：logメソッドをフックして、WARN以上のレベルの場合のみメッセージを出力し、それ未満はフィルタリング。
-    * UppercasePlugin：logメソッドをフックして、メッセージを大文字に変換。
-3. 使用方法：
-    * logger = LoggerBase.new
-    * 必要なプラグインをprependでモジュールを挿入し、logメソッド呼び出し時に順次変換・フィルタを行う。
-    * 全てのプラグインを通じて最後にLoggerBase本体のlogが呼ばれ、最終出力が行われる。
-4. 実行例：
-    * UppercasePluginとTimestampPluginを使い、logger.log("test message")を呼ぶと、"2023-08-20 12:00:00 TEST MESSAGE" のような出力になる。
-    * LevelPluginを先頭にprependして、WARN未満のログは出力されないようにする。
+    * log(message, level = :info) メソッドを持つ（引数はメッセージとログレベル）。
+    * 登録されたプラグインモジュールがフックし、メッセージを変換・フィルタリングまたは別の処理を行う。
+    * 最終的に（プラグインをすべて通過した後で）LoggerBase が標準出力などにログを出力する。
+2. ログレベル
+    * ログレベルとして以下のシンボルを定義する: :debug, :info, :warn, :error, :fatal
+    * それぞれの優先度（低→高）は次の通りとする: :debug < :info < :warn < :error < :fatal
+    * LevelPlugin など、ログレベルに関連するプラグインを作成するときは、この優先度にしたがってフィルタリング・処理を行う。
+3. プラグインモジュール
+    * それぞれのプラグインは log メソッドを定義し、super を使って次のモジュール（または LoggerBase）へ処理を渡す。
+    * 以下の例を最低限用意する。必要に応じて追加・変更してもよい。
+        1. TimestampPlugin
+            * log(message, level) をフックして、メッセージの先頭に現在時刻（フォーマットは "YYYY-MM-DD HH:MM:SS" などでOK）を付与する。
+            * super("#{timestamp} #{message}", level) のように呼び出して、次へ処理を渡す。
+        2. UppercasePlugin
+            * log(message, level) をフックして、受け取ったメッセージを大文字に変換してから次へ処理を渡す。
+        3. LevelPlugin
+            * log(message, level) をフックして、設定された最小ログレベル threshold 未満のログは出力しないようにフィルタリングする。
+            * たとえば threshold が :warn であれば、:warn, :error, :fatal のときだけ次へ処理を渡し、:info, :debug は破棄（何も出力せず終了）する。
+            * threshold 値はモジュール内の定数やクラス変数などで保持してもよいし、prepend 時に引数で注入してもよい。
+4. 使用例・実行例
+    * 下記のように LoggerBase のインスタンスを生成し、順次 prepend していく。
+    ```ruby
+        logger = LoggerBase.new
 
-## 出力例
-```ruby
-# プラグインを好みの順序でprependする
-logger = LoggerBase.new
-logger.singleton_class.prepend(TimestampPlugin)
-logger.singleton_class.prepend(UppercasePlugin)
-logger.singleton_class.prepend(LevelPlugin)
+        # prependする順序を変えると処理順も変化する
+        logger.singleton_class.prepend(TimestampPlugin)
+        logger.singleton_class.prepend(UppercasePlugin)
+        logger.singleton_class.prepend(LevelPlugin)
 
-logger.log("this is info", :info)   # infoは出力されない（levelpluginでフィルタ）
-logger.log("warning occurred!", :warn)
-# => "2023-08-20 12:00:00 WARNING OCCURRED!"
-```
+        # このレベルは :warn 未満なので出力されない
+        logger.log("this is info", :info)
+
+        # こちらは threshold(:warn) 以上なのでフィルタを通過し、すべてのプラグインを通る
+        logger.log("warning occurred!", :warn)
+        logger.log("serious error!", :error)
+
+        # 出力結果
+        2024-12-26 12:00:00 WARNING OCCURRED!
+        2024-12-26 12:00:00 SERIOUS ERROR!
+    ```
+    * logger.log("this is debug", :debug)
+        * LevelPlugin が threshold :warn ならフィルタされ、出力されない
+
+    * logger.log("some warning!", :warn)
+        * LevelPlugin が threshold :warn ならフィルタを通過し
+        * UppercasePlugin で大文字化され "SOME WARNING!" に
+        * TimestampPlugin で "2024-12-26 12:00:00 SOME WARNING!" のような文字列になり、最終的に LoggerBase.log で出力される
+
