@@ -38,9 +38,12 @@ end
 # パイプラインにモジュールをミックスインする
 pipeline = DataPipeline.new([3,12,49,10,55,7,100])
 # 順番にincludeすることで処理順を決定
-pipeline.extend(FilterModule)
-pipeline.extend(TransformModule)
 pipeline.extend(AggregateModule)
+pipeline.extend(TransformModule)
+pipeline.extend(FilterModule)
+# expandは継承チェーンの先頭に入る性質があるので
+# [FilterModule,TransformModule,AggregateModule]となる
+# superをすることでスーパークラスをオーバーライドできるのでチェーン構造で計算が引き継げるという仕組み
 
 p pipeline.process
 # => [50]
