@@ -1,40 +1,30 @@
 class LoggerBase
-    def initialize
-        @name = nil
-        @symbol = nil
-    end
-
-
-    def singleton_class
-        @name
-        @symbol
-    end
-
-
-
-    def log(name,symbol)
-        @name = name
-        @symbol = symbol
+    def log(message, level = :info)
+        puts "#{message}!"
     end
 
 end
 
 module TimestampPlugin
-    def singleton_class
-        @
+    def log(message, level = :info)
+        timestamp = Time.now.strftime("%Y-%m-%d %H:%M:%S")
+        super("#{timestamp} #{message}",level) # LevelPluginに第一引数#{timestamp} #{message},第二引数 levelを渡す
     end
 
-end
-
-module LevelPlugin
-    def singleton_class
-
-    end
 end
 
 module UppercasePlugin
-    def singleton_class
+    def log(message, level = :info)
+        super(message.upcase,level)
+    end
+end
 
+module LevelPlugin
+    THEWSHOLD = :warn
+    LEVEL_ORDER = { debug: 1, info: 2, warn: 3, error: 4, fatal: 5 }
+    def log(message, level = :info)
+        return if LEVEL_ORDER[level] < LEVEL_ORDER[THEWSHOLD]
+        super
     end
 end
 
@@ -54,6 +44,3 @@ logger.log("this is info", :info)
 logger.log("warning occurred!", :warn)
 logger.log("serious error!", :error)
 
-# 出力結果
-2024-12-26 12:00:00 WARNING OCCURRED!
-2024-12-26 12:00:00 SERIOUS ERROR!
