@@ -1,172 +1,131 @@
-# 解答例1: DynamicProperties クラス
+# レベル7: 動的プロキシクラスの作成
 
-## 要件おさらい
-    - 未定義のゲッター・セッターが呼ばれたとき、動的にプロパティを追加・取得できるようにする。
-    - method_missing と respond_to_missing? を利用する。
-    - セッターで複数引数が渡された場合はエラーを投げる。
-    - 存在しないプロパティのゲッターは nil を返す。
-
-### 実装例
+## 1. モジュールを使わないシンプルな実装例
 ```ruby
-class DynamicProperties
-  def initialize
-    # 動的プロパティをハッシュで管理
-    @props = {}
+class LoggerProxy
+  def initialize(target)
+    @target = target
   end
 
-  def method_missing(method_name, *args)
-    method_str = method_name.to_s
+  def method_missing(method_name, *args, &block)
+    # 委譲先がこのメソッドを実装しているか確認
+    if @target.respond_to?(method_name)
+      # ログ出力
+      puts "Calling: #{method_name}(#{args.map(&:inspect).join(', ')})"
 
-    # セッターかどうかを判定
-    if method_str.end_with?("=")
-      # セッターの場合は引数が1つだけであることを確認する
-      if args.size != 1
-        raise ArgumentError, "Setter must have exactly one argument"
-      end
-
-      # "foo=" → "foo" というプロパティ名に変換
-      prop_name = method_str.chomp("=")
-      @props[prop_name] = args.first
+      # 実際のオブジェクトに処理を委譲
+      @target.send(method_name, *args, &block)
     else
-      # ゲッターの場合
-      @props[method_str]  # 存在しない場合はnilが返る
+      # 委譲先が実装していないメソッドの場合は NoMethodError
+      super
     end
   end
 
   def respond_to_missing?(method_name, include_private = false)
-    # どんなメソッド名（ゲッター/セッター）が来ても true にする
-    # ただし、クラスが実際に定義しているメソッドは通常の動きを維持
-    true
+    # 委譲先が応答可能かどうかを返す
+    @target.respond_to?(method_name, include_private) || super
   end
 end
-
-# --- 動作確認例 ---
-# dp = DynamicProperties.new
-# dp.name = "Ruby"
-# p dp.name           # => "Ruby"
-# p dp.age           # => nil (存在しないため)
-# dp.age = 20
-# dp.age = 30, 40     # => ArgumentError (引数が複数)
 ```
-
-# 解答例2: 図書館管理システム
-## 要件おさらい
-### Book クラス
-    title, author, published_year の3つの属性
-    info メソッド
-### EBook クラス (Book を継承)
-    file_size_mb, format 属性追加
-    info をオーバーライドして "[format, file_size_mbMB]" を末尾に追加
-### LendingSystem モジュール
-    lend(book), return_book(book), lent_books の3メソッドを実装
-### Library クラス
-    include LendingSystem
-    蔵書(@books)を管理し、add_book, remove_book, search_by_title を実装
-
+## 使い方の例
 ```ruby
-# --- Book クラス ---
-class Book
-  attr_reader :title, :author, :published_year
+hash = { a: 1, b: 2 }
+proxy = LoggerProxy.new(hash)
 
-  def initialize(title, author, published_year)
-    @title = title
-    @author = author
-    @published_year = published_year
-  end
+p proxy.keys
+# => Calling: keys()
+# => [:a, :b]
 
-  def info
-    "#{title}(#{author}, #{published_year})"
+p proxy[:a]
+# => Calling: [](:a)
+# => 1
+
+proxy[:c] = 3
+# => Calling: []=(:c, 3)
+
+p proxy.fetch(:c)
+# => Calling: fetch(:c)
+# => 3
+
+proxy.non_existing_method
+# => Calling: non_existing_method()
+# => NoMethodError (hashには定義されていない)
+```
+## 2. モジュールを活用した実装例
+ログ出力のロジックをモジュールに分割し、LoggerProxy クラス側ではロジックを呼び出す形にすることで、将来的に別の出力方法（ファイル出力やリモートログ出力など）に切り替えたい場合でも対応しやすくできます。
+
+ログ出力用モジュールの例
+```ruby
+module LoggingModule
+  def log_method_call(method_name, args)
+    puts "Calling: #{method_name}(#{args.map(&:inspect).join(', ')})"
   end
 end
+```
+LoggerProxy クラスの例
+```ruby
+class LoggerProxy
+  include LoggingModule
 
-# --- EBook クラス (Bookを継承) ---
-class EBook < Book
-  attr_reader :file_size_mb, :format
-
-  def initialize(title, author, published_year, file_size_mb, format)
-    # 親クラスの初期化
-    super(title, author, published_year)
-    # 追加属性をセット
-    @file_size_mb = file_size_mb
-    @format = format
+  def initialize(target)
+    @target = target
   end
 
-  def info
-    # 親クラスのinfoに文字列を追加
-    "#{super} [#{format}, #{file_size_mb}MB]"
-  end
-end
+  def method_missing(method_name, *args, &block)
+    if @target.respond_to?(method_name)
+      # ログ出力をモジュールに切り出した例
+      log_method_call(method_name, args)
 
-# --- LendingSystem モジュール ---
-module LendingSystem
-  def lend(book)
-    @lent_books ||= []
-
-    # すでに貸出中のタイトルがあるかどうかを判定
-    if @lent_books.any? { |b| b.title == book.title }
-      # 同じタイトルを2回貸し出すのを禁止
-      raise "Book '#{book.title}' is already lent out."
+      # 実際のオブジェクトに処理を委譲
+      @target.public_send(method_name, *args, &block)
     else
-      @lent_books << book
+      super
     end
   end
 
-  def return_book(book)
-    @lent_books ||= []
-    @lent_books.delete_if { |b| b.title == book.title }
-  end
-
-  def lent_books
-    @lent_books ||= []
+  def respond_to_missing?(method_name, include_private = false)
+    @target.respond_to?(method_name, include_private) || super
   end
 end
-
-# --- Library クラス ---
-class Library
-  include LendingSystem
-
-  # 蔵書を管理する配列
-  attr_reader :books
-
-  def initialize
-    @books = []
-  end
-
-  def add_book(book)
-    @books << book
-  end
-
-  def remove_book(book)
-    @books.delete(book)
-  end
-
-  def search_by_title(title)
-    @books.select { |book| book.title == title }
-  end
-end
-
-# ----------------- 動作確認例 -----------------
-# library = Library.new
-#
-# ruby_book = Book.new("Ruby入門", "Alice", 2020)
-# ebook_js  = EBook.new("JavaScript入門", "Bob", 2019, 10, "EPUB")
-#
-# library.add_book(ruby_book)
-# library.add_book(ebook_js)
-#
-# library.lend(ruby_book)
-# library.lend(ebook_js)
-# p library.lent_books.map(&:info)
-# # => ["Ruby入門(Alice, 2020)", "JavaScript入門(Bob, 2019) [EPUB, 10MB]"]
-#
-# library.return_book(ruby_book)
-# p library.lent_books.map(&:info)
-# # => ["JavaScript入門(Bob, 2019) [EPUB, 10MB]"]
-#
-# p library.search_by_title("Ruby入門").map(&:info)
-# # => ["Ruby入門(Alice, 2020)"]
-#
-# library.remove_book(ruby_book)
-# p library.search_by_title("Ruby入門")
-# # => []
 ```
+## 使い方の例
+```ruby
+hash = { a: 1, b: 2 }
+proxy = LoggerProxy.new(hash)
+
+p proxy.keys
+# => Calling: keys()
+# => [:a, :b]
+
+p proxy[:a]
+# => Calling: [](:a)
+# => 1
+
+proxy[:c] = 3
+# => Calling: []=(:c, 3)
+
+p proxy.fetch(:c)
+# => Calling: fetch(:c)
+# => 3
+
+proxy.non_existing_method
+# => Calling: non_existing_method()
+# => NoMethodError
+```
+## 実装のポイント
+### ログ出力
+
+method_missing 内で呼び出されたメソッド名と引数を出力しています。
+args.map(&:inspect).join(', ') で引数を見やすい文字列に整形しています。
+### 委譲先オブジェクトとの連携
+
+@target.respond_to?(method_name) で委譲先が対応可能かどうかを確認しています。
+メソッド呼び出しの委譲は、@target.send(method_name, *args, &block) や public_send を使うことで実現できます。
+### respond_to_missing? の実装
+
+respond_to? が呼び出されたとき、@target が応答できるかどうかに応じて true / false を返すようにしています。
+super を呼び出しているのは、LoggerProxy 自身が独自に持つ（または Object が持つ）メソッドの場合の応答を担保するためです。
+### モジュール化
+
+ログを出力する機能を LoggingModule のように切り出すことで、他の出力先への変更があっても LoggerProxy 本体を最小限の修正で済ませられるようになります。
+もちろん単一クラス内にまとめても問題ありません。
