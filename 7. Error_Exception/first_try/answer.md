@@ -96,7 +96,7 @@ p count_file_lines("not_exist.txt") # => -1 (「ファイルが存在しませ�
 
 ```
 
-# レベル5の解答例
+# レベル5_1の解答例
 ```ruby
 def safe_read_file(file_path)
   # 1. 引数チェック
@@ -129,6 +129,181 @@ rescue Errno::ENOENT => e
   puts "再スロー捕捉: #{e.message}"
 end
 ```
+
+# レベル5_2の解答例
+```ruby
+#####################################
+# カスタム例外クラス定義
+#####################################
+class InvalidParamError < StandardError; end
+
+#####################################
+# メソッド定義
+#####################################
+def calculate_square(value)
+  unless value.is_a?(Numeric)
+    raise InvalidParamError, "数値ではありません: #{value.inspect}"
+  end
+  value**2
+end
+
+# 呼び出し例（書き直し）
+
+# 正常な呼び出し
+result1 = calculate_square(5)
+puts result1  # => 25
+
+# 例外発生を個別に処理する
+begin
+  result2 = calculate_square("hello")
+  puts result2
+rescue InvalidParamError => e
+  puts "パラメータエラーが発生: #{e.message}"
+end
+```
+# レベル5_3の解答例
+```ruby
+def open_user_account(username, age)
+  # バリデーション
+  raise ArgumentError, "ユーザー名が空です" if username.empty?
+  raise ArgumentError, "年齢は0以上である必要があります" if age < 0
+
+  begin
+    File.open("users.txt", "a") do |f|
+      f.puts("#{username}, #{age}")
+    end
+    puts "ユーザーアカウントを作成しました: #{username}, #{age}"
+  rescue StandardError => e
+    # エラーをログに出力
+    puts "ファイル書き込み時にエラーが発生: #{e.message}"
+    # 同じ例外を再スロー
+    raise
+  end
+end
+
+
+# 呼び出し例（書き直し）
+# 正常な呼び出し
+begin
+  open_user_account("alice", 20)
+rescue ArgumentError => e
+  puts "引数エラー: #{e.message}"
+rescue => e
+  puts "その他のエラー: #{e.message}"
+end
+
+# ユーザー名が空のケース
+begin
+  open_user_account("", 30)
+rescue ArgumentError => e
+  puts "引数エラー: #{e.message}"
+rescue => e
+  puts "その他のエラー: #{e.message}"
+end
+
+# ageが負のケース
+begin
+  open_user_account("bob", -5)
+rescue ArgumentError => e
+  puts "引数エラー: #{e.message}"
+rescue => e
+  puts "その他のエラー: #{e.message}"
+end
+```
+# レベル5_4の解答例
+```ruby
+
+require 'json'
+
+class JsonDataError < StandardError; end
+
+def parse_json_data(json_str)
+  raise ArgumentError, "JSON文字列が空です" if json_str.empty?
+
+  begin
+    JSON.parse(json_str)
+  rescue JSON::ParserError => e
+    raise JsonDataError, "JSONパースに失敗しました: #{e.message}"
+  end
+end
+
+# 呼び出し例（書き直し）
+
+# 正常なJSON文字列
+begin
+  result = parse_json_data('{"name": "Bob", "age": 25}')
+  p result  # => {"name"=>"Bob", "age"=>25}
+rescue ArgumentError => e
+  puts "引数エラー: #{e.message}"
+rescue JsonDataError => e
+  puts "JSONデータエラー: #{e.message}"
+end
+
+# 空文字列
+begin
+  parse_json_data("")  # => ArgumentError
+rescue ArgumentError => e
+  puts "引数エラー: #{e.message}"
+rescue JsonDataError => e
+  puts "JSONデータエラー: #{e.message}"
+end
+
+# 不正なJSON
+begin
+  parse_json_data('{name: "Bob", age: 25}')  # => JSON::ParserError -> JsonDataError
+rescue ArgumentError => e
+  puts "引数エラー: #{e.message}"
+rescue JsonDataError => e
+  puts "JSONデータエラー: #{e.message}"
+end
+```
+
+# レベル5_5の解答例
+```ruby
+# ダミーで外部API呼び出しを模擬
+def fetch_data_from_api
+  raise "API Error!" if rand < 0.5  # 50%の確率でエラー
+  "APIから取得したデータ"
+end
+
+def fetch_data_with_retry
+  max_retries = 3
+  attempts = 0
+
+  begin
+    attempts += 1
+    return fetch_data_from_api
+  rescue StandardError => e
+    puts "リトライ中... (#{attempts}回目): #{e.message}"
+    if attempts < max_retries
+      sleep(1)  # オプションで待機
+      retry
+    else
+      # 3回失敗したら再スロー
+      raise e
+    end
+  end
+end
+
+# 呼び出し例（書き直し）
+
+# 呼び出し1 (リトライに成功するかも)
+begin
+  data1 = fetch_data_with_retry
+  puts "成功1: #{data1}"
+rescue => e
+  puts "3回失敗。最終的にエラー: #{e.message}"
+end
+
+# 呼び出し2 (状況によっては失敗する)
+begin
+  data2 = fetch_data_with_retry
+  puts "成功2: #{data2}"
+rescue => e
+  puts "3回失敗。最終的にエラー: #{e.message}"
+end
+```
+
 
 # レベル6の解答例
 ```ruby
