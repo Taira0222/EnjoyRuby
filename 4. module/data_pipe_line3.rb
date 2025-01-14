@@ -39,3 +39,4 @@ pipeline.extend(TransformModule)
 pipeline.extend(FilterModule)
 p pipeline.process
 # => [50]
+p pipeline.singleton_class.ancestors
