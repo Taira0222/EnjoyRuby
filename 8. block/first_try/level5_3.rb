@@ -1,5 +1,17 @@
+# 解けなかった
 def each_sorted(hash, by: :key)
+    return hash unless block_given?
+    if by == :key
+        sorted_pairs = hash.sort_by{|k,_v|k}
+    elsif by == :value
+        sorted_pairs = hash.sort_by{|_k,v|v}
+    else
+        sorted_pairs = hash.sort_by{|k,_v|k}
+    end
 
+    sorted_pairs.each do |k,v|
+        yield(k,v)
+    end
 end
 
 sample_hash = { b: 1, a: 5, c: 3 }
