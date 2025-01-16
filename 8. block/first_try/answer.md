@@ -240,3 +240,81 @@ p max_value
 # => 30
 
 ```
+
+# 問題11(レベル6)
+```ruby
+def measure_time
+  start_time = Time.now
+  yield  # ブロックの実行
+  end_time = Time.now
+  end_time - start_time  # 経過時間を返す
+end
+
+time = measure_time do
+  # 例: 何らかの時間のかかる処理
+  100_000.times do
+    a = 10 * 20
+  end
+end
+
+puts "処理時間: #{time}秒"
+```
+
+# 問題12(レベル6)
+```ruby
+def average_time(times)
+  # ブロックが与えられていない、または回数が0以下の場合は0を返す等の制御
+  return 0 unless block_given?
+  return 0 if times <= 0
+
+  total_time = 0.0
+  times.times do
+    start = Time.now
+    yield  # ブロック実行
+    finish = Time.now
+    total_time += (finish - start)
+  end
+
+  total_time / times
+end
+
+# 動作確認
+avg = average_time(5) do
+  # 例: 1万回程度のループ
+  10_000.times { 10 * 20 }
+end
+
+puts "平均実行時間: #{avg}秒"
+```
+# 問題13(レベル6)
+```ruby
+def read_file_with_progress(filepath)
+  return unless block_given?
+
+  # ファイルが存在するかどうか簡易チェック (実際はFile.exist?(filepath)なども可)
+  unless File.readable?(filepath)
+    puts "ファイルが見つからないか、読み込めません: #{filepath}"
+    return
+  end
+
+  # 1回目: ファイルの総行数を取得
+  total_lines = 0
+  File.foreach(filepath) { total_lines += 1 }
+
+  return if total_lines.zero?  # 空ファイルなら処理終了
+
+  # 2回目: 読み込みつつ進捗を計算
+  current_line = 0
+  File.foreach(filepath) do |line|
+    current_line += 1
+    progress = ((current_line.to_f / total_lines) * 100).to_i
+    # ブロックに渡す: (行の内容, 進捗)
+    yield(line.chomp, progress)
+  end
+end
+
+# 動作確認 (例)
+# read_file_with_progress("sample.txt") do |line, progress|
+#   puts "[#{progress}%] #{line}"
+# end
+```
