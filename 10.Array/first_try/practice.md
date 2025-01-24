@@ -92,3 +92,47 @@ articles_by_category = [
 
 * flatten の実務使用例
 * ソートして表示するだけでも実務の「一覧画面表示」に近い処理
+
+# 問題7 大量データに対してmap/rejectの性能を検証しよう(レベル7)
+1. 100万件程度の数値を要素とする配列を Array.new(1_000_000) { rand(1..100) } で作成してください。
+2. 以下の2つの処理を行うスクリプトを書き、処理時間を比較・計測してみましょう。（Time.now または Benchmark ライブラリを使用）
+  * map でそれぞれの要素を2倍にした新しい配列を作る
+  * reject で50未満の要素を除外した新しい配列を作る
+3. 大量データを扱う場合、どれくらい時間がかかるかを把握し、パフォーマンスの観点から「破壊的に行うか」「イミュータブルに行うか」を検討材料にする練習をしてください。
+## ポイント:
+
+* 大規模なデータ（メモリ負荷、処理時間）を意識したテスト
+* Benchmark.measure や Benchmark.bm などで簡易ベンチマークを取る
+* 実務でもレコード数が多い場合の配列操作でパフォーマンスを意識するシーンがある
+
+# 問題8 配列とメタプログラミングを交えたユーティリティモジュール(レベル7)
+1. 「特定クラスのインスタンス配列」を受け取り、指定された属性の一覧をArrayで返すユーティリティメソッドを定義します。
+例:
+
+```ruby
+class User
+  attr_accessor :name, :age
+  def initialize(name, age)
+    @name = name
+    @age = age
+  end
+end
+
+module ArrayUtils
+  # users: Userインスタンスの配列
+  # attr_name: シンボル(:nameや:age)を想定
+  # → usersからattr_nameの値だけを取り出し配列で返す
+  def self.pluck(users, attr_name)
+    # 実装
+  end
+end
+```
+2. method_missing や define_method を使った方法で「ダイナミックに pluck する」仕組みを考えてもOKです。（高度なので必須ではありません）
+
+3. ArrayUtils.pluck(users, :name) → ["Alice", "Bob", "Carol"] のように動作するかテストコードなどで確認してください。
+
+## ポイント:
+
+* 実務でも ActiveRecord の pluck や map(&:xxx) を活用するシーンは多い
+* メタプログラミングを使うと、動的にメソッドを生やす「簡易ORM」的な実装例も作成可能
+* 「配列とクラスインスタンス・属性」の組み合わせが業務システムでは頻出
