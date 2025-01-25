@@ -1,3 +1,4 @@
+# 不正解
 class Person
     @@people = []
 
