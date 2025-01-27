@@ -11,7 +11,7 @@
 - ブロック処理 済
 - Numericクラス 済
 - Arrayクラス 済
-- Stringクラス 3
+- Stringクラス 済
 - Hashクラス 3
 - Timeクラス 4 
 - Dateクラス 4
