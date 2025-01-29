@@ -12,18 +12,18 @@
 - Numericクラス 済
 - Arrayクラス 済
 - Stringクラス 済
-- Hashクラス 3
-- Timeクラス 4 
-- Dateクラス 4
+- Hashクラス 済
 - Regexpクラス 5
 ～～～～～ここまでは必ずやる～～～～～ 以降は必要になったら学ぶ
-- Procクラス 6
-- Dirクラス 7
-- テキスト処理 7
-- sqlite3ライブラリ 8
-- IOクラス 9
-- Fileクラス 9
-- Encodingクラス 10
+- Timeクラス 
+- Dateクラス 
+- Procクラス 
+- Dirクラス 
+- テキスト処理 
+- sqlite3ライブラリ 
+- IOクラス 
+- Fileクラス 
+- Encodingクラス 
 
 
 変更があるかもしれないが、上記22項目の問題を解くことにする。
