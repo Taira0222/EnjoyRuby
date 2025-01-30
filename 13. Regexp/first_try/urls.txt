@@ -1,0 +1,5 @@
+こちらにアクセスしてください: https://example.com
+または http://foo.bar/baz?x=1
+不正なURL例: ftp//example.com, htt://missing.com
+任意のテキスト...
+https://sub.domain.co.jp/path/to/resource.html#anchor
