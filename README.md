@@ -1,3 +1,209 @@
+# Introduction
+This repository is created as an output for practicing what I learned from “Fun Ruby 6th Edition,” using ChatGPT o1 to generate and solve exercises. Although “Fun Ruby 6th Edition” is very understandable and covers a wide range of content, it provides fewer exercises, leaving my understanding somewhat superficial. By actually doing the exercises and working with code, I can deepen my comprehension.
+
+Please note that the content of these exercises and solutions is based on AI and may not be entirely accurate, so use them with caution.
+# Environment
+The environment is as follows:
+
+OS: Windows 11
+Ruby 3.3.5
+
+# Directory Structure
+Each directory is separated by class or topic.
+`first_try` is the directory where I solved the problems first.
+`second_try` is the directory used for review by solving the problems again.
+The file names follow the convention difficulty.rb. The difficulty levels are as follows:
+
+### Level 1: Environment Setup & Intro
+* Install Ruby and set up an environment that allows you to run puts "Hello, World!".
+* Understand basic commands like ruby filename.rb.
+* Even without much knowledge of the syntax, you can create a file and execute it.
+
+### Level 2: Basic Syntax
+* Work with basic data types such as variables/constants, strings, numbers, arrays, and hashes.
+* Use control structures such as if, while, and each.
+* Define methods and group simple processes.
+* Roughly identify causes of errors from error messages.
+
+### Level 3: Classes, Modules, and OOP Fundamentals
+* Define your own classes, and understand/use instance variables and methods.
+* Master array/hash methods like map, select, and find.
+* Understand modules (module) and use include for code reuse.
+* Read backtraces and do basic debugging.
+
+### Level 4: Multi-File Development & Advanced Syntax
+* Split code across multiple classes and files for better organization.
+* Use exception handling (begin-rescue) to control behavior on errors.
+* Understand blocks, procs, and yield to build flexible processes.
+* Refactor your code using modules or method extraction to reduce duplication.
+
+### Level 5: Standard Libraries & Internal Structure
+* Skillfully use standard libraries such as Time, File, StringIO to streamline daily tasks.
+* Deeply grasp Enumerator and Enumerable for more powerful iterative processing.
+* Understand the Ruby object model, including self and scope, in detail.
+* Write code with awareness of Ruby’s internals such as performance and memory use.
+
+### Level 6: Advanced Error Handling, Debugging & Performance
+* Make full use of raise, rescue, ensure, retry for complex error handling.
+* Use traceback or debuggers (like byebug) for quick bug identification and fixes.
+* Profile using tools like RubyProf and the standard benchmark library to optimize performance bottlenecks.
+* Manage character encoding and internationalization (Encoding, I18n), among other concerns.
+
+### Level 7: Metaprogramming & Dynamic Features
+* Understand the basics of metaprogramming with method_missing, define_method, class_eval.
+* Learn Ruby’s class hierarchy, singleton classes, and open classes to read library code.
+* Dynamically generate or modify classes and methods as needed.
+* Develop code in large codebases with flexible extensions and modifications.
+
+### Level 8: Large-Scale Code Design & Advanced Standard Libraries
+* Establish responsibility assignments and naming conventions for large Ruby projects, improving readability.
+* Use advanced standard libraries (Socket, Open3, Net::HTTP, etc.) for networking or concurrency.
+* Explore performance tuning (like GC behavior and Ractor) to pursue higher efficiency.
+* Understand multi-threading and inter-process communication well enough to handle them safely.
+
+### Level 9: Deep Understanding of Ruby Interpreters & Contributions
+* Compare MRI and other interpreters (JRuby, TruffleRuby, etc.) to choose appropriately based on their features.
+* Tackle core libraries and C extensions by reading and modifying Ruby’s internal implementation.
+* Fluently use language features like Proc objects, Fibers, Enumerator::Lazy, and more.
+* Lead large-scale refactoring efforts and safely modernize legacy codebases.
+
+### Level 10: Ruby Expert & Involvement in Language Development
+* Understand MRI’s source code well and have contributed to the core or standard libraries.
+* Offer in-depth expertise in DSL construction, metaprogramming, performance optimization, and more.
+* Participate in Ruby’s roadmap and community, influencing the evolution of the language.
+* Provide insight into architectural design and multi-language comparisons, ensuring optimal use of Ruby.
+
+
+## 1. Object
+Since everything in Ruby is basically an object, many of the exercises revolve around class design.
+
+### Insights from the exercises
+* Using if and find for book management
+* Using select for book searches
+* Using super for generating payroll slips
+## 2. Conditional Logic
+### Insights from the exercises
+* Using if for state management
+* Using array operations (find, each, delete)
+* Updating object states effectively
+## 3. Repeat (Iteration)
+### Insights from the exercises
+* Using select for filtering
+* Using map for value transformation
+* Using sum and fdiv for average calculations
+* Using sort for ordering
+## 4. Module
+I had a bit of a mental hurdle with modules, so I’ve practiced them more extensively than other areas.
+
+### Insights from the exercises
+* Declaring module functions with module and self.method_name
+* Defining and accessing constants
+* Including modules to utilize them as instance methods
+* Nesting modules for namespace organization
+* Extending objects with modules
+* Adding custom methods to Array
+* Dynamically extending modules with extend
+* Using super for method chaining
+## 5. Class
+### Insights from the exercises
+* Performing calculations using instance variables
+* Managing bank accounts with class variables (@@)
+* Employing class methods (self.method)
+* Using find to search for products
+* Updating inventory with if
+* Displaying product lists with each
+## 6. Operator
+### Insights from the exercises
+* Transforming list elements with map
+* Implementing abs_diff for absolute differences
+* Implementing even_or_odd for identifying parity
+## 7. Error_Exception
+### Insights from the exercises
+* Reading files with File.open
+* Counting lines with File.read
+* Safely converting strings to Integer
+* Avoiding zero division
+* Implementing custom numeric checks via exceptions
+* Raising an exception if arguments are missing
+* Validating JSON data
+## 8. Block
+### Insights from the exercises
+* Checking for block availability with block_given?
+* Using sub and gsub in a block-based manner
+* Summing values in an each loop, accumulating the results
+* Obtaining adjacent elements with (0...(array.size - 1))
+* Passing pairs to a block via yield(array[i], array[i + 1])
+* Using .step(step) for iterating at certain intervals
+* Sorting with .sort_by { |k, _| k } (by keys) and .sort_by { |_, v| v } (by values)
+* Measuring execution time with Time.now
+* Counting lines with File.foreach(filepath).count
+* Tracking progress using .with_index
+* Accepting multiple blocks with *blocks and chaining them with .call(result)
+## 9. Numeric
+### Insights from the exercises
+* Summing array elements with .sum
+* Calculating integer averages via .div(numbers.size)
+* Getting the maximum and minimum with .max and .min
+* Checking for '/' to distinguish Rational values
+* Converting fraction strings to Rational(number)
+* Converting decimal strings to Float using .to_f
+* Creating complex numbers with Complex(a, b)
+* Using .abs for the absolute value (distance) of a complex number
+* Using .arg for the argument (angle) of a complex number
+## 10. Array
+### Insights from the exercises
+* Using File.foreach to process files line by line without fully loading them into memory
+* Using .gsub(/\\n/, \"\") to remove newlines
+* Using .uniq.sort to remove duplicates and then sort
+* Splitting text with .split('\\n') (noting single quotes might not behave as expected)
+* Using loop do ... end for continuous user input
+* Using gets.chomp to remove trailing newlines
+* Using break if item.empty? to stop on an empty line
+* Reading CSV rows via CSV.foreach(\"users.csv\", headers: true)
+* Accessing columns by row[\"name\"] and row[\"age\"]
+* Sorting by age with .sort_by { |u| u[:age] }
+* Using .each (not .map) to modify the original array
+* Using attr_accessor to make task status mutable
+* Flattening nested arrays with .flatten and using .sort to arrange them
+* Measuring time with Benchmark.bm and storing results in variables
+## 11. String
+### Insights from the exercises
+* Using File.foreach(file_path) to handle lines efficiently
+* Removing leading/trailing spaces with .strip
+* Splitting on spaces or tabs with .split(/\\s+/)
+* Ignoring empty lines via next if line.empty?
+* Appending split data to an array with result << collums
+* Using &:capitalize to capitalize the first letter of each word
+* Checking if an ID starts with ID- using .start_with?(\"ID-\")
+* Using .slice(start, length) to get the user part of the ID
+* Matching only alphanumeric characters with /\\A[A-Za-z\\d]+\\z/
+* Removing < and > using .delete('<>')
+* Converting full-width spaces to half-width with .tr('　', ' ')
+* Formatting decimal values with sprintf(\"%.2f\", price)
+* Inserting commas every three digits using .gsub(/(\\d)(?=(\\d{3})+\\.)/, \"\\\\1,\")
+## 12. Hash
+### Insights from the exercises
+* Checking for a key with .has_key?(key) (or .key?(key))
+* Deleting a key with .delete(key) (which returns the deleted value)
+* Using .each { |k, v| ... } to iterate over keys and values
+* Summing only values with |_, sales| if the key isn’t needed
+* Filtering by exact match with .select { |_, sales| sales == select_shop }
+* Filtering by threshold with .select { |_, sales| sales > price }
+## 13. Regexp
+### Insights from the exercises
+* Using .each_line for memory-efficient line-by-line processing
+* Removing trailing newlines with .chomp
+* Matching phone numbers with /\\A\\d{2,4}-\\d{3,4}-\\d{4}\\z/
+* Extracting multiple instances of different formats with text.scan(pattern)
+* Setting a default '00' if seconds aren’t provided (sec = sec || '00')
+* Converting 12-hour to 24-hour time by adjusting hours if ampm.upcase == 'PM'
+* Using format('%02d', hour_24) to zero-pad hours
+* Using %r{...} to avoid escaping slashes in regex
+* Matching https?:// for HTTP/HTTPS
+* Matching [A-Za-z0-9.-]+ for domains
+* Using (?:/[^\\s]*)? to optionally capture everything after the slash
+
+
 # はじめに
 このレポジトリは「たのしいRuby 第6版」で習った内容のアウトプットとして、ChatGPT o1を使用し問題を作成させ演習するというものです。
 「たのしいRuby 第6版」はとてもわかりやすく、かなり網羅的に内容が載っている一方で、演習量が少なく表面的な理解にとどまっていたため、実際に手を動かして演習をすることで理解度を深めることができます。
@@ -220,5 +426,3 @@ moduleはとても苦手意識があったので、ほかの分野よりも演�
 * https?:// を使い、 http または https の URL を検出
 * [A-Za-z0-9.-]+ を使い、 ドメイン名を検出
 * (?:/[^\s]*)? を使い、 スラッシュ以降の部分をオプションで含める
-
-
