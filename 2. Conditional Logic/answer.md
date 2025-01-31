@@ -1,5 +1,4 @@
 # 問1 答え
-※コメントよりコードに異常があるため、12/17に確認する
 ```ruby
 class Task
     attr_accessor :name, :assignee, :status

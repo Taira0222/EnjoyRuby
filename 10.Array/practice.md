@@ -21,22 +21,8 @@
 * reverse を使った単純な並べ替え
 * メソッド分割（例: def collect_foods）などで読みやすい構成に
 
-# 問題3: 配列操作に関するRSpecテストを記述する(レベル5)
-1. Rubyファイル（array_exercise.rb など）に以下のメソッドを定義してください。
-```ruby
-# 与えられた文字列配列から、「文字数が5文字以上の要素」だけを返すメソッド
-def filter_long_words(words)
-  # 実装する
-end
-```
-2. 別ファイルでRSpecテストを書き、filter_long_words(["apple", "dog", "banana"]) を実行したとき、結果が ["apple", "banana"] になることをテストしてください。
-3. テストを実行して、グリーンになることを確認しましょう。
-## ポイント:
 
-* select / reject などで要素をフィルタリングする
-* RSpec の expect(actual).to eq(expected) などの基本的な書き方に慣れる
-
-# 問題4: CSVデータの読み込みとソート(レベル5)
+# 問題3: CSVデータの読み込みとソート(レベル5)
 1. users.csv が以下のような形式で与えられます。（ヘッダ行あり）
 ```csv
 name,age
@@ -53,7 +39,7 @@ Carol,35
 3. 実務でよくある「CSVを読み込んで何か処理」は非常に典型的
 
 
-# 問題5: 配列を使ったタスクの一括更新機能（擬似的なRailsモデル想定）(レベル6)
+# 問題4: 配列を使ったタスクの一括更新機能（擬似的なRailsモデル想定）(レベル6)
 以下のような Task クラス（擬似的なモデル）を定義したとします。
 ```ruby
 class Task
@@ -76,7 +62,7 @@ end
 * each や map を使った更新ロジック
 * 実務では「一括更新API」などで似たような操作を行うシーンがある
 
-# 問題6: 多重配列のフラット化と集計(レベル6)
+# 問題5: 多重配列のフラット化と集計(レベル6)
 1. ブログの記事データを「カテゴリごと」に配列で持っているとします。
 ```ruby
 articles_by_category = [
@@ -93,7 +79,7 @@ articles_by_category = [
 * flatten の実務使用例
 * ソートして表示するだけでも実務の「一覧画面表示」に近い処理
 
-# 問題7 大量データに対してmap/rejectの性能を検証しよう(レベル7)
+# 問題6 大量データに対してmap/rejectの性能を検証しよう(レベル7)
 1. 100万件程度の数値を要素とする配列を Array.new(1_000_000) { rand(1..100) } で作成してください。
 2. 以下の2つの処理を行うスクリプトを書き、処理時間を比較・計測してみましょう。（Time.now または Benchmark ライブラリを使用）
   * map でそれぞれの要素を2倍にした新しい配列を作る
@@ -105,34 +91,3 @@ articles_by_category = [
 * Benchmark.measure や Benchmark.bm などで簡易ベンチマークを取る
 * 実務でもレコード数が多い場合の配列操作でパフォーマンスを意識するシーンがある
 
-# 問題8 配列とメタプログラミングを交えたユーティリティモジュール(レベル7)
-1. 「特定クラスのインスタンス配列」を受け取り、指定された属性の一覧をArrayで返すユーティリティメソッドを定義します。
-例:
-
-```ruby
-class User
-  attr_accessor :name, :age
-  def initialize(name, age)
-    @name = name
-    @age = age
-  end
-end
-
-module ArrayUtils
-  # users: Userインスタンスの配列
-  # attr_name: シンボル(:nameや:age)を想定
-  # → usersからattr_nameの値だけを取り出し配列で返す
-  def self.pluck(users, attr_name)
-    # 実装
-  end
-end
-```
-2. method_missing や define_method を使った方法で「ダイナミックに pluck する」仕組みを考えてもOKです。（高度なので必須ではありません）
-
-3. ArrayUtils.pluck(users, :name) → ["Alice", "Bob", "Carol"] のように動作するかテストコードなどで確認してください。
-
-## ポイント:
-
-* 実務でも ActiveRecord の pluck や map(&:xxx) を活用するシーンは多い
-* メタプログラミングを使うと、動的にメソッドを生やす「簡易ORM」的な実装例も作成可能
-* 「配列とクラスインスタンス・属性」の組み合わせが業務システムでは頻出

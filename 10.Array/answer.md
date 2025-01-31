@@ -48,39 +48,9 @@ if __FILE__ == $0
 end
 ```
 
+
+
 # 問題3 (レベル5)
-```ruby
-# array_exercise.rb
-
-def filter_long_words(words)
-  # 文字数が5文字以上の要素だけを返す
-  words.select { |word| word.length >= 5 }
-end
-
-
-# array_exercise_spec.rb
-require_relative 'array_exercise'
-
-RSpec.describe 'filter_long_words' do
-  it 'returns words with length >= 5' do
-    input = ["apple", "dog", "banana"]
-    result = filter_long_words(input)
-    expect(result).to eq(["apple", "banana"])
-  end
-
-  it 'returns an empty array if no words satisfy the condition' do
-    input = ["hi", "cat", "dog"]
-    result = filter_long_words(input)
-    expect(result).to eq([])
-  end
-end
-
-
-# 実行方法
-rspec array_exercise_spec.rb
-```
-
-# 問題4 (レベル5)
 ```ruby
 # csv_sort.rb
 require 'csv'
@@ -105,7 +75,7 @@ sorted_users.each do |user|
 end
 ```
 
-# 問題5 (レベル6)
+# 問題4 (レベル6)
 ```ruby
 # task.rb
 
@@ -142,7 +112,7 @@ if __FILE__ == $0
 end
 ```
 
-# 問題6 (レベル6)
+# 問題5 (レベル6)
 ```ruby
 # flatten_articles.rb
 
@@ -162,7 +132,7 @@ puts "== 記事数 =="
 puts all_articles.size
 ```
 
-# 問題7(レベル7)
+# 問題6(レベル7)
 
 ```ruby
 # benchmark_array.rb
@@ -182,51 +152,3 @@ puts "map    : #{time_map.real}秒"
 puts "reject : #{time_reject.real}秒"
 ```
 
-# 問題8 (レベル7)
-```ruby
-# user.rb
-
-class User
-  attr_accessor :name, :age
-
-  def initialize(name, age)
-    @name = name
-    @age  = age
-  end
-end
-
-module ArrayUtils
-  def self.pluck(objects, attr_name)
-    objects.map { |obj| obj.send(attr_name) }
-  end
-
-  # 例えば「ArrayUtils.name_of(users)」のように呼べるメソッドを
-  # 動的に定義する場合は method_missing や define_method を活用する。
-  #
-  # def self.method_missing(method, *args, &block)
-  #   if method.to_s =~ /^(\w+)_of$/
-  #     attr_name = $1.to_sym
-  #     return pluck(args.first, attr_name)
-  #   end
-  #   super
-  # end
-end
-
-# テスト例
-if __FILE__ == $0
-  users = [
-    User.new("Alice", 30),
-    User.new("Bob",   25),
-    User.new("Carol", 35)
-  ]
-
-  names = ArrayUtils.pluck(users, :name)
-  ages  = ArrayUtils.pluck(users, :age)
-
-  puts "Names: #{names.inspect}"
-  puts "Ages : #{ages.inspect}"
-
-  # [オプション] method_missingを使うとこんなイメージ
-  # puts "Names by method_missing: #{ArrayUtils.name_of(users)}"
-end
-```
